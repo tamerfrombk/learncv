@@ -61,10 +61,26 @@ def saltAndPepper(img, prob):
                 result[i][i] = img[i][j]
     return result
 
+def templateMatch(mask, img, method = cv.TM_CCOEFF_NORMED):
+    ''' Return the coefficient image from the template matching and the original image overlaid with a rectangle showing the area of highest match. '''
+    res = cv.matchTemplate(img, mask, method)
+    minV, maxV, minLoc, maxLoc = cv.minMaxLoc(res)
+    
+    # These two methods use the lowest score as the best match
+    if method in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:
+        topLeft = minLoc
+    else:
+        topLeft = maxLoc
+
+    h, w, c = mask.shape[::]
+    bottomRight = (topLeft[0] + w, topLeft[1] + h)
+    return res, cv.rectangle(img, topLeft, bottomRight, 255)
+
 def main():
     print("Resource path: %s" % LEARNCV_RESOURCE_PATH)
     lena = cvread('lena.png')
     fruit = cvread('fruit.png')
+    lips = cvread('lips.png')
 
     cv.imshow('Combined', blend(lena, fruit, 0))
     cv.imshow('Fruit', fruit)
@@ -73,6 +89,10 @@ def main():
     cv.imshow('Median Blurred Fruit', median(fruit, 11))
     cv.imshow('Salt and Pepper', saltAndPepper(fruit, 0))
     cv.imshow('Blended salt and pepper lena', blend(lena, saltAndPepper(lena, 0.03)))
+
+    template, result = templateMatch(lips, lena)
+    cv.imshow('Lena template', template)
+    cv.imshow('Lena lips', result)
 
     cv.waitKey(0)
     cv.destroyAllWindows()
