@@ -1,6 +1,9 @@
 #!/usr/bin/env python
+
 import sys
 import cv2 as cv
+import numpy as np
+import random as rd
 
 # The path where all image resources all loaded from
 LEARNCV_RESOURCE_PATH = sys.exec_prefix + "/../rsc/"
@@ -41,24 +44,35 @@ def gausBlur(img, sigmaX, sigmaY = 0.0, ksize = 3):
     ''' Uses a gaussian box filter to blur the image. This returns a new image. '''
     return cv.GaussianBlur(img, (ksize, ksize), sigmaX, sigmaY)
 
+def median(img, ksize = 3):
+    return cv.medianBlur(img, ksize)
+
+def saltAndPepper(img, prob):
+    result = np.zeros(img.shape, np.uint8)
+    thres = 1 - prob
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            n = rd.random()
+            if n < prob:
+                result[i][j] = 0
+            elif n > thres:
+                result[i][j] = 255
+            else:
+                result[i][i] = img[i][j]
+    return result
+
 def main():
     print("Resource path: %s" % LEARNCV_RESOURCE_PATH)
     lena = cvread('lena.png')
     fruit = cvread('fruit.png')
 
-    b, g, r = split(fruit)
-    cv.imshow('Fruit B', b)
-    cv.imshow('Fruit G', g)
-    cv.imshow('Fruit R', r)
-    print("Channels in Lena: %d" % nChannels(lena))
-
     cv.imshow('Combined', blend(lena, fruit, 0))
     cv.imshow('Fruit', fruit)
     cv.imshow('Box Blurred Fruit', boxBlur(fruit, 10))
     cv.imshow('Gaussian Blurred Fruit', gausBlur(fruit, 5.0, 5.0, 11))
-
-    intensify(fruit, 1.0)
-    cv.imshow('Intense fruit', fruit)
+    cv.imshow('Median Blurred Fruit', median(fruit, 11))
+    cv.imshow('Salt and Pepper', saltAndPepper(fruit, 0))
+    cv.imshow('Blended salt and pepper lena', blend(lena, saltAndPepper(lena, 0.03)))
 
     cv.waitKey(0)
     cv.destroyAllWindows()
