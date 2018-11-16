@@ -23,17 +23,43 @@ def blend(i1, i2, alpha = 0.5):
     ''' A simple blending of two images using linear blending. Both images must be same size and type. '''
     return cv.addWeighted(i1, alpha, i2, 1 - alpha, 0.0)
 
+def nChannels(img):
+    ''' Return the number of channels an image has '''
+    n = len(img.shape)
+    return 1 if n == 2 else img.shape[2]
+
+def intensify(img, scalar):
+    ''' Intensify each color channel in the image by applying a scalar value. This returns a new image. '''
+    for i in range(0, nChannels(img)):
+        img[:,:,i] = [x * scalar for x in img[:,:,i]]
+
+def boxBlur(img, ksize = 3):
+    ''' Use a normalized box filter to blur the image. This returns a new image. '''
+    return cv.boxFilter(img, -1, (ksize, ksize))
+
+def gausBlur(img, sigmaX, sigmaY = 0.0, ksize = 3):
+    ''' Uses a gaussian box filter to blur the image. This returns a new image. '''
+    return cv.GaussianBlur(img, (ksize, ksize), sigmaX, sigmaY)
+
 def main():
     print("Resource path: %s" % LEARNCV_RESOURCE_PATH)
     lena = cvread('lena.png')
     fruit = cvread('fruit.png')
 
-    b, g, r = split(lena)
-    cv.imshow('Lena B', b)
-    cv.imshow('Lena G', g)
-    cv.imshow('Lena R', r)
+    b, g, r = split(fruit)
+    cv.imshow('Fruit B', b)
+    cv.imshow('Fruit G', g)
+    cv.imshow('Fruit R', r)
+    print("Channels in Lena: %d" % nChannels(lena))
 
     cv.imshow('Combined', blend(lena, fruit, 0))
+    cv.imshow('Fruit', fruit)
+    cv.imshow('Box Blurred Fruit', boxBlur(fruit, 10))
+    cv.imshow('Gaussian Blurred Fruit', gausBlur(fruit, 5.0, 5.0, 11))
+
+    intensify(fruit, 1.0)
+    cv.imshow('Intense fruit', fruit)
+
     cv.waitKey(0)
     cv.destroyAllWindows()
 
