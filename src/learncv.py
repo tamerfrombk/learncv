@@ -94,6 +94,11 @@ def main():
     cv.imshow('Lena template', template)
     cv.imshow('Lena lips', result)
 
+    # Use Canny edge detection using 100/200 as minVal/maxVal of non-maximum surpression. 
+    cv.imshow('Edge 100/200 Lena', cv.Canny(lena, 100, 200))
+    cv.imshow('Edge 50/200 Lena', cv.Canny(lena, 50, 200))
+    cv.imshow('Edge 100/400 Lena', cv.Canny(lena, 100, 400))
+
     cv.waitKey(0)
     cv.destroyAllWindows()
 
