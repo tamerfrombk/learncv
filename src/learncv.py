@@ -58,7 +58,7 @@ def saltAndPepper(img, prob):
             elif n > thres:
                 result[i][j] = 255
             else:
-                result[i][i] = img[i][j]
+                result[i][j] = img[i][j]
     return result
 
 def templateMatch(mask, img, method = cv.TM_CCOEFF_NORMED):
